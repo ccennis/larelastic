@@ -1,0 +1,17 @@
+{
+    "name": "cennis/larelastic",
+    "description": "generic elastic wrapper for search",
+    "authors": [
+        {
+            "name": "Caroline Ennis",
+            "email": "carolinecennis@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "cennis\\larelastic\\": "src/"
+        }
+    }
+}
