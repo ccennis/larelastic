@@ -8,9 +8,18 @@
 
 namespace ccennis\Larelastic\Providers;
 
+use Illuminate\Support\ServiceProvider;
 
-class LarelasticServiceProvider
+class LarelasticServiceProvider extends ServiceProvider
 {
+
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
+
     public function boot()
     {
         //
@@ -18,7 +27,7 @@ class LarelasticServiceProvider
 
     public function provides()
     {
-        return ['han.prince'];
+        return ['ccennis.larelastic'];
     }
 
     /**
@@ -29,9 +38,8 @@ class LarelasticServiceProvider
     public function register()
     {
         $this->app->singleton('ccennis.larelastic', function ($app) {
-            $larelastic = $this->app->make('ccennis\Services\LarelasticService');
+            $larelastic = $this->app->make('ccennis\Larelastic\Services\ElasticService');
 
             return $larelastic;
         });
     }
-}
