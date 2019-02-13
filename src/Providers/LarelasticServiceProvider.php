@@ -6,7 +6,7 @@
  * Time: 2:19 PM
  */
 
-namespace cennis\larelastic\Providers;
+namespace ccennis\Larelastic\Providers;
 
 
 class LarelasticServiceProvider
@@ -28,8 +28,8 @@ class LarelasticServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('cennis.larelastic', function ($app) {
-            $larelastic = $this->app->make('cennis\Services\LarelasticService');
+        $this->app->singleton('ccennis.larelastic', function ($app) {
+            $larelastic = $this->app->make('ccennis\Services\LarelasticService');
 
             return $larelastic;
         });

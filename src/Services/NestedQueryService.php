@@ -2,108 +2,33 @@
 /**
  * Created by PhpStorm.
  * User: cennis
- * Date: 2/9/19
- * Time: 2:24 PM
+ * Date: 2/10/19
+ * Time: 2:16 PM
  */
 
-namespace cennis\larelastic\Services;
+namespace ccennis\Larelastic\Services;
 
-
-class LarelasticService
+class NestedQueryService
 {
-    //$data param must contain a column, value, and operator
-    public function buildQuery($data, $nestPath = null)
+    private static function getNestpath($field)
     {
-        $must = [];
-
-        if(isset($data['column'])){
-            switch ($data['operator']) {
-                case '=':
-
-                    $must = ['match' => [
-                        $nestPath . $data['column'] => $data['value'],
-                    ]];
-
-                    break;
-
-                case "begins_with":
-                    $must =
-                        [
-                            'query_string' => [
-                                'query' => $data['value'] . '*',
-                                'fields' => [$nestPath . $data['column']]
-                            ]
-                        ];
-                    break;
-
-                case "ends_with":
-                    $must =
-                        [
-                            'query_string' => [
-                                'query' => '*' . $data['value'],
-                                'fields' => [$nestPath . $data['column']]
-                            ]
-
-                        ];
-
-                    break;
-                case "contains":
-
-                    if ($data['column'] == 'crm_user_id') {
-                        $match = array();
-                        foreach ($data['value'] as $id) {
-                            // "['crm_user_id' => "."'".$id."']";
-                            $match[] = array(
-                                'match' => array(
-                                    $nestPath . 'crm_user_id' => $id
-                                )
-                            );
-                        }
-                        $must = [
-                            'bool' => [
-                                'should' =>
-                                    $match,
-                                'minimum_should_match' => 1
-                            ],
-
-                        ];
-                    } else {
-                        $must = [
-                            'query_string' => [
-                                'query' => '*' . $data['value'] . '*',
-                                'fields' => [$nestPath . $data['column']]
-                            ],
-
-                        ];
-                    }
-                    break;
-                case "gte":
-                case "lte":
-                case "gt":
-                case "lt":
-
-                    $range[]['range'][$nestPath . $data['column']] = [$data['operator'] => $data['value']];
-                    $must = $range;
-
-                    break;
-
-                case "between":
-                    $range[]['range'][$nestPath . $data['column']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
-                    $must = [$range];
-                    break;
-            }
+        $arr = explode(".", $field);
+        if (count($arr) > 1) {
+            return array_shift($arr);
         }
-        return $must;
     }
 
-    public function buildNestedQuery($data, $nestPath = null){
+    //todo check for raw flag
+    public static function buildQuery($data){
 
-        $must = [];
+        $search_string = [];
+        $nestPath = self::getNestpath($data['column']);
+        $data['column'] = str_replace($nestPath . ".", "", $data['column']);
 
         switch ($data['operator']) {
-            case '=':
+            case 'eq':
 
-                $must[]['nested'] = [
+                $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
@@ -118,7 +43,7 @@ class LarelasticService
 
             case "begins_with":
 
-                $must[]['nested'] = [
+                $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
@@ -136,7 +61,7 @@ class LarelasticService
 
             case "ends_with":
 
-                $must[]['nested'] = [
+                $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
@@ -156,7 +81,7 @@ class LarelasticService
 
                 $match = array();
 
-                $must[]['nested'] = [
+                $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
@@ -176,7 +101,7 @@ class LarelasticService
 
                 $range[]['range'][$nestPath . $data['column']] = [$data['operator'] => $data['value']];
 
-                $must[]['nested'] = [
+                $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
@@ -194,7 +119,7 @@ class LarelasticService
             case "between":
                 $range[]['range'][$nestPath . $data['column']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
 
-                $must[]['nested'] = [
+                $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
@@ -208,6 +133,19 @@ class LarelasticService
                 ];
                 break;
         }
-        return $must;
+        return $search_string;
+    }
+    
+    public static function buildSort($data)
+    {
+        if (isset($data['field'])) {
+            $nestedPath = $data['field'];
+            return array(
+                $nestedPath => [
+                    'order' => $data['order'],
+                    'nested_path' => substr($nestedPath, 0, strrpos($nestedPath, "."))
+                ]
+            );
+        }
     }
 }

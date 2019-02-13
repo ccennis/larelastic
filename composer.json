@@ -1,5 +1,5 @@
 {
-    "name": "cennis/larelastic",
+    "name": "ccennis/larelastic",
     "description": "generic elastic wrapper for search",
     "authors": [
         {
@@ -8,10 +8,12 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "guzzlehttp/guzzle": "^6.0"
+    },
     "autoload": {
         "psr-4": {
-            "cennis\\larelastic\\": "src/"
+            "ccennis\\Larelastic\\": "src/"
         }
     }
 }
