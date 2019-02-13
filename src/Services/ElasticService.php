@@ -1,17 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cennis
- * Date: 2/11/19
- * Time: 8:06 AM
- */
 
 namespace ccennis\Larelastic\Services;
-
 
 use ccennis\Larelastic\Models\Elastic;
 use GuzzleHttp\Client;
 use ccennis\Larelastic\Contracts\LarelasticInterface;
+use Config;
 
 class ElasticService  implements LarelasticInterface
 {
@@ -22,6 +16,7 @@ class ElasticService  implements LarelasticInterface
     public $query;
     public $size;
     public $from;
+    public $url;
 
     /**
      * ElasticService constructor.
@@ -30,7 +25,8 @@ class ElasticService  implements LarelasticInterface
     {
         //todo add connection here
         $this->sort = [];
-        $this->url = env('ELASTIC_URL');
+        $this->base_url = Config::get('larelastic.default.base_url');
+        $this->url = $this->base_url."/".Config::get('larelastic.default.index')."/_search";
     }
 
     //simple query select -- get where equals equivalent
@@ -40,6 +36,14 @@ class ElasticService  implements LarelasticInterface
             $data['field'] => $data['value']
         ];
 
+        return $this;
+    }
+
+    public function index($index)
+    {
+        if ($index) {
+            $this->url = $this->base_url.= "/" . $index . "/_search";
+        }
         return $this;
     }
 

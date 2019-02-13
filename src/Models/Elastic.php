@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cennis
- * Date: 2/11/19
- * Time: 4:08 PM
- */
 
 namespace ccennis\Larelastic\Models;
 

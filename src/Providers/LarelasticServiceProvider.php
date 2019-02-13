@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cennis
- * Date: 2/9/19
- * Time: 2:19 PM
- */
 
 namespace ccennis\Larelastic\Providers;
 
@@ -22,7 +16,9 @@ class LarelasticServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        //
+        $this->publishes([
+            __DIR__ . '/../config/larelastic.php' => config_path('larelastic.php'),
+        ]);
     }
 
     public function provides()
@@ -43,3 +39,4 @@ class LarelasticServiceProvider extends ServiceProvider
             return $larelastic;
         });
     }
+}
