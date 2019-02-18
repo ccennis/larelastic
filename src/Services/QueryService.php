@@ -9,12 +9,12 @@ class QueryService
     {
         $search_string = [];
 
-        if(isset($data['column'])){
+        if(isset($data['field'])){
             switch ($data['operator']) {
                 case 'eq':
 
                     $search_string = ['match' => [
-                        $nestPath . $data['column'] => $data['value'],
+                        $nestPath . $data['field'] => $data['value'],
                     ]];
 
                     break;
@@ -24,7 +24,7 @@ class QueryService
                         [
                             'query_string' => [
                                 'query' => $data['value'] . '*',
-                                'fields' => [$nestPath . $data['column']]
+                                'fields' => [$nestPath . $data['field']]
                             ]
                         ];
                     break;
@@ -34,7 +34,7 @@ class QueryService
                         [
                             'query_string' => [
                                 'query' => '*' . $data['value'],
-                                'fields' => [$nestPath . $data['column']]
+                                'fields' => [$nestPath . $data['field']]
                             ]
 
                         ];
@@ -44,7 +44,7 @@ class QueryService
                     $search_string = [
                         'query_string' => [
                             'query' => '*' . $data['value'] . '*',
-                            'fields' => [$nestPath . $data['column']]
+                            'fields' => [$nestPath . $data['field']]
                         ],
 
                     ];
@@ -54,13 +54,13 @@ class QueryService
                 case "gt":
                 case "lt":
 
-                    $range[]['range'][$nestPath . $data['column']] = [$data['operator'] => $data['value']];
+                    $range[]['range'][$nestPath . $data['field']] = [$data['operator'] => $data['value']];
                     $search_string = $range;
 
                     break;
 
                 case "between":
-                    $range[]['range'][$nestPath . $data['column']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
+                    $range[]['range'][$nestPath . $data['field']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
                     $search_string = [$range];
                     break;
             }
@@ -115,7 +115,7 @@ class QueryService
 
         return $filter;
     }
-    
+
     public static function buildSort($data)
     {
         if (isset($data['field'])) {

@@ -16,8 +16,8 @@ class NestedQueryService
     public static function buildQuery($data){
 
         $search_string = [];
-        $nestPath = self::getNestpath($data['column']);
-        $data['column'] = str_replace($nestPath . ".", "", $data['column']);
+        $nestPath = self::getNestpath($data['field']);
+        $data['field'] = str_replace($nestPath . ".", "", $data['field']);
 
         switch ($data['operator']) {
             case 'eq':
@@ -27,7 +27,7 @@ class NestedQueryService
                     'query' => [
                         'bool' => [
                             'must' => array(['match' => [
-                                $nestPath . "." . $data['column'] => $data['value']
+                                $nestPath . "." . $data['field'] => $data['value']
                             ]])
                         ]
                     ]
@@ -45,7 +45,7 @@ class NestedQueryService
                                 [
                                     'query_string' => [
                                         'query' => $data['value'] . '*',
-                                        'fields' => [$nestPath .".". $data['column']]
+                                        'fields' => [$nestPath .".". $data['field']]
                                     ]
                                 ],
                             ]
@@ -63,7 +63,7 @@ class NestedQueryService
                                 [
                                     'query_string' => [
                                         'query' => '*' . $data['value'],
-                                        'fields' => [$nestPath .".". $data['column']]
+                                        'fields' => [$nestPath .".". $data['field']]
                                     ]
                                 ],
                             ]
@@ -82,7 +82,7 @@ class NestedQueryService
                             'must' => [
                                 'query_string' => [
                                     'query' => '*' . $data['value'] . '*',
-                                    'fields' => [$nestPath . "." . $data['column']]
+                                    'fields' => [$nestPath . "." . $data['field']]
                                 ],
                             ]
                         ]]
@@ -93,7 +93,7 @@ class NestedQueryService
             case "gt":
             case "lt":
 
-                $range[]['range'][$nestPath . $data['column']] = [$data['operator'] => $data['value']];
+                $range[]['range'][$nestPath . $data['field']] = [$data['operator'] => $data['value']];
 
                 $search_string[]['nested'] = [
                     'path' => $nestPath,
@@ -101,7 +101,7 @@ class NestedQueryService
                         'bool' => [
                             'must' => [
                                 'range' => [
-                                    $nestPath .".".  $data['column'] => $range
+                                    $nestPath .".".  $data['field'] => $range
                                 ]
                             ]
                         ]
@@ -111,7 +111,7 @@ class NestedQueryService
                 break;
 
             case "between":
-                $range[]['range'][$nestPath . $data['column']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
+                $range[]['range'][$nestPath . $data['field']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
 
                 $search_string[]['nested'] = [
                     'path' => $nestPath,
@@ -119,7 +119,7 @@ class NestedQueryService
                         'bool' => [
                             'must' => [
                                 'range' => [
-                                    $nestPath .".". $data['column'] => $range
+                                    $nestPath .".". $data['field'] => $range
                                 ]
                             ]
                         ]
@@ -129,7 +129,7 @@ class NestedQueryService
         }
         return $search_string;
     }
-    
+
     public static function buildSort($data)
     {
         if (isset($data['field'])) {

@@ -4,10 +4,9 @@ namespace ccennis\Larelastic\Services;
 
 use ccennis\Larelastic\Models\Elastic;
 use GuzzleHttp\Client;
-use ccennis\Larelastic\Contracts\LarelasticInterface;
 use Config;
 
-class ElasticService  implements LarelasticInterface
+class ElasticService
 {
     public $must;
     public $must_not;
@@ -30,13 +29,13 @@ class ElasticService  implements LarelasticInterface
     }
 
     //simple query select -- get where equals equivalent
-    public function get($data){
-
-        $this->query['term'] = [
+    public function get($data)
+    {
+        $params['query']['term'] = [
             $data['field'] => $data['value']
         ];
 
-        return $this;
+        return $this->query(json_encode($params));
     }
 
     public function index($index)
@@ -49,6 +48,9 @@ class ElasticService  implements LarelasticInterface
 
     public function must($data)
     {
+        //must needs to be a multi-dimensional array but we can accept just the search_criteria and wrap it
+        $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
+
         foreach ($data as $searchItem) {
             if ($searchItem['nested'] == true) {
                 $this->bool['must'][] = NestedQueryService::buildQuery($searchItem);
@@ -61,6 +63,9 @@ class ElasticService  implements LarelasticInterface
 
     public function must_not($data)
     {
+        //must_not needs to be a multi-dimensional array but we can accept just the search_criteria and wrap it
+        $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
+
         foreach ($data as $searchItem) {
 
             $this->bool['must_not'][] = QueryService::buildQuery($searchItem);
@@ -112,11 +117,11 @@ class ElasticService  implements LarelasticInterface
         }
     }
 
-    public function query(){
+    public function query($params = null){
 
         $client = new Client();
 
-        $params = $this->getQuery();
+        $params = null ? $this->getQuery() : $params;
 
         $result = $client->request('POST', $this->url, [
             'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
