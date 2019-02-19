@@ -15,6 +15,7 @@ class ElasticService
     public $query;
     public $size;
     public $from;
+    public $page;
     public $url;
 
     /**
@@ -52,10 +53,13 @@ class ElasticService
         $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
 
         foreach ($data as $searchItem) {
-            if ($searchItem['nested'] == true) {
-                $this->bool['must'][] = NestedQueryService::buildQuery($searchItem);
-            } else {
-                $this->bool['must'][] = QueryService::buildQuery($searchItem);
+            //make sure this isn't an empty array
+            if (count($searchItem) > 0) {
+                if (isset($searchItem['nested']) && $searchItem['nested'] == true) {
+                    $this->bool['must'][] = NestedQueryService::buildQuery($searchItem);
+                } else {
+                    $this->bool['must'][] = QueryService::buildQuery($searchItem);
+                }
             }
         }
         return $this;
@@ -67,8 +71,9 @@ class ElasticService
         $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
 
         foreach ($data as $searchItem) {
-
-            $this->bool['must_not'][] = QueryService::buildQuery($searchItem);
+            if (count($searchItem) > 0) {
+                $this->bool['must_not'][] = QueryService::buildQuery($searchItem);
+            }
         }
         return $this;
     }
@@ -93,7 +98,7 @@ class ElasticService
 
     public function sort($data)
     {
-        if ($data['nested'] == true) {
+        if (isset($data['nested']) && $data['nested'] == true) {
             $this->sort = NestedQueryService::buildSort($data);
         } else {
             $this->sort = QueryService::buildSort($data);
@@ -104,6 +109,13 @@ class ElasticService
     public function size($data){
 
         $this->size = $data;
+
+        return $this;
+    }
+
+    public function page($data){
+
+        $this->page = $data;
 
         return $this;
     }
@@ -121,11 +133,11 @@ class ElasticService
 
         $client = new Client();
 
-        $params = null ? $this->getQuery() : $params;
+        $body = $params == null ? $this->getQuery() : $params;
 
         $result = $client->request('POST', $this->url, [
             'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
-            'body' => $params
+            'body' => $body
         ]);
 
         return json_decode($result->getBody()->getContents());
@@ -136,9 +148,9 @@ class ElasticService
         $query = new Elastic();
 
         $query->bool($this->bool);
-        $query->from($this->from);
         $query->sort($this->sort);
         $query->size($this->size);
+        $query->from($this->from, $this->page);
 
         return json_encode($query);
     }

@@ -8,6 +8,7 @@ class Elastic
     public $sort;
     public $from;
     public $size;
+    private $page;
 
     /**
      * Elastic constructor.
@@ -31,6 +32,13 @@ class Elastic
         return $this;
     }
 
+    private function page($page = null)
+    {
+        $this->page = $page !== null ? $page : 1;
+
+        return $this;
+    }
+
     public function size($size = null)
     {
         $this->size = $size !== null ? $size : 25;
@@ -38,9 +46,9 @@ class Elastic
         return $this;
     }
 
-    public function from($from = null)
+    public function from($from = null, $page = null)
     {
-        $this->from = $from !== null ? $from : 0;
+        $this->from = $page == 1 ? 0 : (($page - 1) * $this->size);
 
         return $this;
     }
