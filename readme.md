@@ -1,8 +1,8 @@
-#Larelastic
-
+# Larelastic
+ 
 A package to quickly get off the ground with querying your elastic index by making use of the query, bool, sort and filter methods. 
 
-##Installation
+## Installation
 
 ### Composer
 
@@ -46,7 +46,7 @@ ELASTICSEARCH_PORT=9200
 ELASTICSEARCH_INDEX=myIndex
 ````
 
-##Usage and Examples
+## Usage and Examples
 
  
 [You can find a sample elastic index here.](https://www.elastic.co/guide/en/kibana/current/tutorial-load-dataset.html) I will use examples from the account index below.
@@ -173,7 +173,7 @@ To query a different index than your .env default, or if you choose not to set a
 	            'value' => 'Zosis'
 	        ]);
 	        
-###Nested Queries
+### Nested Queries
 
 Larelastic supports querying nested documents. 
 
