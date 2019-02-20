@@ -118,9 +118,12 @@ class QueryService
 
     public static function buildSort($data)
     {
+        //raw or keyword, for example
+        $fieldType = isset($data['field_type']) ? ".".$data['field_type'] : "";
+
         if (isset($data['field'])) {
             return array(
-                $data['field'] => [
+                $data['field'].$fieldType => [
                     'order' => $data['order']
                 ]
             );

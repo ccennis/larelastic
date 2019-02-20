@@ -132,8 +132,11 @@ class NestedQueryService
 
     public static function buildSort($data)
     {
+        //raw or keyword, for example
+        $fieldType = isset($data['field_type']) ? ".".$data['field_type'] : "";
+
         if (isset($data['field'])) {
-            $nestedPath = $data['field'];
+            $nestedPath = $data['field'].$fieldType;
             return array(
                 $nestedPath => [
                     'order' => $data['order'],

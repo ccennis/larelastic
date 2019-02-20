@@ -1,0 +1,228 @@
+#Larelastic
+
+A package to quickly get off the ground with querying your elastic index by making use of the query, bool, sort and filter methods. 
+
+##Installation
+
+### Composer
+
+#### Add to your composer.json "repositories" section
+
+```json
+{ "type": "git", "url": "git@github.com:ccennis/larelastic.git" }
+```
+
+#### Require the package from **command line**
+
+```text
+composer require ccennis/Larelastic
+```
+
+### Laravel
+
+##### Add the Third Party Service Providers in config/app.php
+
+```php
+ccennis\Larelastic\Providers\LarelasticServiceProvider::class
+```
+
+##### Add the Third Party Aliases in config/app.php
+
+```php
+'Elastic' => ccennis\Larelastic\Facades\Elastic::class
+```
+
+##### Get Config Files
+
+```php
+php artisan vendor:publish
+```
+
+#### Add the following variables to your .env file
+
+````php
+ELASTICSEARCH_HOST=http://localhost
+ELASTICSEARCH_PORT=9200
+ELASTICSEARCH_INDEX=myIndex
+````
+
+##Usage and Examples
+
+ 
+[You can find a sample elastic index here.](https://www.elastic.co/guide/en/kibana/current/tutorial-load-dataset.html) I will use examples from the account index below.
+
+
+Any of the [bool](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) methods (`must`, `must_not`, `should`, and `filter` require an array of field, operator, value, and nested
+
+
+Key | Type | Description
+--- | ---- | -----------
+field | String | allows dot notation, e.g. "seller.email"
+operator | String | allowable params: "eq, begins with, ends with, contains, gte, lte, gt, lt"
+value | String, date, integer | your query item
+nested | Boolean | true or false depending on whether your params are within a nested document
+
+Sample Bool query to find a seller by email:
+
+```php
+
+$mustData[] = [
+    'field' => 'address',
+    'operator' => 'eq',
+    'value' => '171 Putnam Avenue',
+    'nested' => false
+];
+
+Elastic::must($mustData)->query();
+
+```
+
+This will return a json response of the elastic result set.
+
+The below $mustData by itself will return 502 results but let's also apply a filter of gender F to narrow it further.
+
+```php
+        $mustData[] = [
+            'field' => 'age',
+            'operator' => 'gt',
+            'value' => '30',
+            'nested' => false
+        ];
+```
+
+```php
+        $filterData['clauses'] = [[
+            'field' => 'gender',
+            'operator' => 'eq',
+            'value' => 'F'
+        ]];
+
+        $Elastic::must($mustData)
+            ->filter($filterData)
+            ->query();
+```
+            
+Now you should have a result set of about 249.
+
+We can also apply a "should" parameter to say we would like the employer to be Lotron, Zosis or Amazon. This would be treated as an "OR" statement in contrast to the "AND" statement of the MUST clause.
+
+        $shouldData['clauses'] = [
+            [
+                'field' => 'employer',
+                'operator' => 'eq',
+                'value' => 'Zosis'
+            ],
+            [
+                'field' => 'employer',
+                'operator' => 'eq',
+                'value' => 'Lotron'
+            ],
+            [
+                'field' => 'employer',
+                'operator' => 'eq',
+                'value' => 'Amazon'
+            ]
+        ];
+
+        return Elastic::must($mustData)
+        ->filter($filterData)
+        ->should($shouldData)
+        ->query();
+        
+Now you should only have 2 people who work at the places listed in our should and who are female. Let's sort them. Bear in mind your elastic index must have the correct datatypes for search and sort. If you choose to add raw or keyword types you can pass those in your field param, i.e. "account_number.raw"
+
+        $sortData = [
+            'field' => 'account_number',
+            'order' => 'desc'
+        ];
+    
+        return Elastic::must($mustData)
+        ->filter($filterData)
+        ->should($shouldData)
+        ->sort($sortData)
+        ->query();
+        
+For pagination, the Elastic facade also accepts `page` and `size` methods, i.e. 
+
+		return Elastic::must($mustData)
+		->page(2)
+		->size(100)
+		->query()
+	
+For simple, quick queries ([term queries](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html)), you can just use a "get" method:
+	
+	  return Elastic::get([
+	    'field' => 'employer',
+	    'operator' => 'eq',
+	    'value' => 'Zosis'
+	]);
+	
+To return a specific fieldset, you can use the `_source` method:
+
+	return Elastic::_source('id')->get([
+	            'field' => 'employer',
+	            'operator' => 'eq',
+	            'value' => 'Zosis'
+	        ]); 
+	        
+To query a different index than your .env default, or if you choose not to set a default, you can specify your index:
+
+	return Elastic::index('myIndex')->_source('id')->get([
+	            'field' => 'employer',
+	            'operator' => 'eq',
+	            'value' => 'Zosis'
+	        ]);
+	        
+###Nested Queries
+
+Larelastic supports querying nested documents. 
+
+Consider the schema
+
+	"mappings": {
+		"items": {
+			"properties": {
+				"seller": {
+					"type": "nested",
+					"properties": {
+						"email": {
+							"type": "keyword",
+							"normalizer": "lowercase_normalizer"
+						}
+					}
+				}
+			}
+		}
+	}
+
+in order to query an `items` by the nested field `seller.email` you can specify `nested => true` in your bool clause. 
+
+the `sort` method will also allow a nested param which will allow you to sort on a nested document field. 
+
+### Using Field Types
+
+In some schemas you may use a field for various reasons. If you need to designate a name field as raw or a keyword, you can specify this field_type when sorting.
+
+For the below schema entry, in order to be able to sort on this field, you would need to pass it manufacturer_name.raw.
+
+     "manufacturer_name": {
+            "type": "text",
+            "analyzer": "my_search_analyzer",
+            "search_analyzer": "standard",
+            "fields": {
+                "raw": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer",
+                    "index": "true"
+                }
+            }
+        }
+
+	return Elastic::sort([
+           'field' => 'manufacturer_name',
+           'order' => 'desc',
+           'nested' => false,
+           'field_type' => 'raw'
+        ])->query();
+
+

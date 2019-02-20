@@ -41,7 +41,7 @@ class ElasticQuery
 
     public function bool($bool)
     {
-        $boolArray['bool'] = $bool;
+        $boolArray['bool'] = $bool == null ? new stdClass() : $bool;
 
         $this->query = $boolArray;
 
