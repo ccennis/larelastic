@@ -2,14 +2,13 @@
 
 namespace ccennis\Larelastic\Services;
 
-use ccennis\Larelastic\Models\Elastic;
+use ccennis\Larelastic\Models\ElasticQuery;
 use GuzzleHttp\Client;
 use Config;
 
 class ElasticService
 {
-    public $must;
-    public $must_not;
+    public $_source;
     public $sort;
     public $bool;
     public $query;
@@ -17,6 +16,7 @@ class ElasticService
     public $from;
     public $page;
     public $url;
+    public $term;
 
     /**
      * ElasticService constructor.
@@ -32,11 +32,16 @@ class ElasticService
     //simple query select -- get where equals equivalent
     public function get($data)
     {
-        $params['query']['term'] = [
-            $data['field'] => $data['value']
-        ];
+        $elasticQuery = new ElasticQuery();
 
-        return $this->query(json_encode($params));
+        $elasticQuery->_source($this->_source);
+        $elasticQuery->term($data);
+        $elasticQuery->sort($this->sort);
+        $elasticQuery->size($this->size);
+        $elasticQuery->from($this->from, $this->page);
+
+        return $this->query(json_encode($elasticQuery));
+
     }
 
     public function index($index)
@@ -44,6 +49,15 @@ class ElasticService
         if ($index) {
             $this->url = $this->base_url.= "/" . $index . "/_search";
         }
+        return $this;
+    }
+
+    public function term($data){
+
+        $termArray['term'] = [$data['field'] => $data['value']];
+
+        $this->query = $termArray;
+
         return $this;
     }
 
@@ -120,6 +134,13 @@ class ElasticService
         return $this;
     }
 
+    public function _source($data){
+
+        $this->_source = $data;
+
+        return $this;
+    }
+
     public function getSort()
     {
         if(isset($this->sort)) {
@@ -145,13 +166,14 @@ class ElasticService
 
     public function getQuery(){
 
-        $query = new Elastic();
+        $elasticQuery = new ElasticQuery();
 
-        $query->bool($this->bool);
-        $query->sort($this->sort);
-        $query->size($this->size);
-        $query->from($this->from, $this->page);
+        $elasticQuery->_source($this->_source);
+        $elasticQuery->bool($this->bool);
+        $elasticQuery->sort($this->sort);
+        $elasticQuery->size($this->size);
+        $elasticQuery->from($this->from, $this->page);
 
-        return json_encode($query);
+        return json_encode($elasticQuery);
     }
 }

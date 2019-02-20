@@ -2,16 +2,17 @@
 
 namespace ccennis\Larelastic\Models;
 
-class Elastic
+class ElasticQuery
 {
     public $query;
     public $sort;
     public $from;
     public $size;
     private $page;
+    public $_source;
 
     /**
-     * Elastic constructor.
+     * ElasticQuery constructor.
      * @param $query
      * @param $sort
      * @param $from
@@ -22,6 +23,21 @@ class Elastic
         $this->sort = [];
     }
 
+    public function _source($_source)
+    {
+        $this->_source = $_source !== null ? $_source : [];
+
+        return $this;
+    }
+
+    public function term($data)
+    {
+        $termArray['term'] = [$data['field'] => $data['value']];
+
+        $this->query = $termArray;
+
+        return $this;
+    }
 
     public function bool($bool)
     {
@@ -48,7 +64,7 @@ class Elastic
 
     public function from($from = null, $page = null)
     {
-        $this->from = $page == 1 ? 0 : (($page - 1) * $this->size);
+        $this->from = $page <= 1 ? 0 : (($page - 1) * $this->size);
 
         return $this;
     }
