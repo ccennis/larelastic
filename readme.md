@@ -129,7 +129,9 @@ We can also apply a "should" parameter to say we would like the employer to be L
         ->should($shouldData)
         ->query();
         
-Now you should only have 2 people who work at the places listed in our should and who are female. Let's sort them. Bear in mind your elastic index must have the correct datatypes for search and sort. If you choose to add raw or keyword types you can pass those in your field param, i.e. "account_number.raw"
+Now you should only have 2 people who work at the places listed in our `should` and who are female. Let's sort them. Bear in mind your elastic index schema must have the correct datatypes assigned for search and sort. 
+
+See `Using Field Types`for sorting using fields with specific field_types.
 
         $sortData = [
             'field' => 'account_number',
