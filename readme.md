@@ -97,7 +97,7 @@ The below $mustData by itself will return 502 results but let's also apply a fil
             'value' => 'F'
         ]];
 
-        $Elastic::must($mustData)
+        Elastic::must($mustData)
             ->filter($filterData)
             ->query();
 ```
