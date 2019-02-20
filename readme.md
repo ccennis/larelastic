@@ -205,7 +205,7 @@ the `sort` method will also allow a nested param which will allow you to sort on
 
 In some schemas you may use a field for various reasons. If you need to designate a name field as raw or a keyword, you can specify this field_type when sorting.
 
-For the below schema entry, in order to be able to sort on this field, you would need to pass it manufacturer_name.raw.
+For the below schema entry, in order to be able to sort on this field, you would need to add `'field_type' => 'raw'` to your $sortData.
 
      "manufacturer_name": {
             "type": "text",
