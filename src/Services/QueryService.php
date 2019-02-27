@@ -11,6 +11,14 @@ class QueryService
 
         if(isset($data['field'])){
             switch ($data['operator']) {
+
+                case 'in':
+                    $search_string = [$data['field'] => [
+                        'values' => $data['value'],
+                    ]];
+
+                    break;
+
                 case 'eq':
 
                     $search_string = ['match' => [
@@ -61,7 +69,7 @@ class QueryService
 
                 case "between":
                     $range[]['range'][$nestPath . $data['field']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
-                    $search_string = [$range];
+                    $search_string = $range;
                     break;
             }
         }

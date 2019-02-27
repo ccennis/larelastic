@@ -2,6 +2,8 @@
 
 namespace ccennis\Larelastic\Models;
 
+use stdClass;
+
 class ElasticQuery
 {
     public $query;

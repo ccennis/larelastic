@@ -5,6 +5,7 @@ namespace ccennis\Larelastic\Services;
 use ccennis\Larelastic\Models\ElasticQuery;
 use GuzzleHttp\Client;
 use Config;
+use function str_replace;
 
 class ElasticService
 {
@@ -25,8 +26,8 @@ class ElasticService
     {
         //todo add connection here
         $this->sort = [];
-        $this->base_url = Config::get('larelastic.default.base_url');
-        $this->url = $this->base_url."/".Config::get('larelastic.default.index')."/_search";
+        $this->base_url = Config::get('search.default.base_url');
+        $this->url = $this->base_url."/".Config::get('search.default.index')."/_search";
     }
 
     //simple query select -- get where equals equivalent
@@ -41,6 +42,20 @@ class ElasticService
         $elasticQuery->from($this->from, $this->page);
 
         return $this->query(json_encode($elasticQuery));
+
+    }
+
+    public function id($id, $type){
+
+        $this->url = str_replace('/_search', "/".$type."/".$id, $this->url);
+
+        $client = new Client();
+
+        $result = $client->request('GET', $this->url, [
+            'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
+        ]);
+
+        return json_decode($result->getBody()->getContents());
 
     }
 
@@ -64,7 +79,7 @@ class ElasticService
     public function must($data)
     {
         //must needs to be a multi-dimensional array but we can accept just the search_criteria and wrap it
-        $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
+        // $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
 
         foreach ($data as $searchItem) {
             //make sure this isn't an empty array
