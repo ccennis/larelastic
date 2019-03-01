@@ -76,11 +76,25 @@ class ElasticService
         return $this;
     }
 
+    public function multimatch($data, $type = 'cross_fields')
+    {
+        foreach ($data as $searchItem) {
+            //make sure this isn't an empty array
+            if (count($searchItem) > 0) {
+                $this->bool['must'][]['multi_match'] = [
+                    'type' => $type,
+                    'query' => $searchItem['value'],
+                    'fields' => $searchItem['field'],
+                    'operator' => 'and',
+                    'analyzer' => 'standard'
+                ];
+            }
+        }
+        return $this;
+    }
+
     public function must($data)
     {
-        //must needs to be a multi-dimensional array but we can accept just the search_criteria and wrap it
-        // $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
-
         foreach ($data as $searchItem) {
             //make sure this isn't an empty array
             if (count($searchItem) > 0) {
@@ -96,12 +110,13 @@ class ElasticService
 
     public function must_not($data)
     {
-        //must_not needs to be a multi-dimensional array but we can accept just the search_criteria and wrap it
-        $data = count($data) == count($data, COUNT_RECURSIVE) ? [$data] : $data;
-
         foreach ($data as $searchItem) {
             if (count($searchItem) > 0) {
-                $this->bool['must_not'][] = QueryService::buildQuery($searchItem);
+                if (isset($searchItem['nested']) && $searchItem['nested'] == true) {
+                    $this->bool['must_not'][] = NestedQueryService::buildQuery($searchItem);
+                } else {
+                    $this->bool['must_not'][] = QueryService::buildQuery($searchItem);
+                }
             }
         }
         return $this;
@@ -176,6 +191,8 @@ class ElasticService
             'body' => $body
         ]);
 
+        $this->destroy();
+
         return json_decode($result->getBody()->getContents());
     }
 
@@ -190,5 +207,11 @@ class ElasticService
         $elasticQuery->from($this->from, $this->page);
 
         return json_encode($elasticQuery);
+    }
+
+    private function destroy() {
+        foreach ($this as $key => $value) {
+            $this->$key = null;
+        }
     }
 }
