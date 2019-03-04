@@ -52,13 +52,13 @@ ELASTICSEARCH_INDEX=myIndex
 [You can find a sample elastic index here.](https://www.elastic.co/guide/en/kibana/current/tutorial-load-dataset.html) I will use examples from the account index below.
 
 
-Any of the [bool](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) methods (`must`, `must_not`, `should`, and `filter` require an array of field, operator, value, and nested
+Any of the [bool](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) methods (`must`, `must_not`, `should`, and `filter`) require an array of field, operator, value, and nested
 
 
 Key | Type | Description
 --- | ---- | -----------
 field | String | allows dot notation, e.g. "seller.email"
-operator | String | allowable params: "eq, begins with, ends with, contains, gte, lte, gt, lt"
+operator | String | allowable params: "eq, begins with, ends with, contains, gte, lte, gt, lt, in"
 value | String, date, integer | your query item
 nested | Boolean | true or false depending on whether your params are within a nested document
 
@@ -89,6 +89,7 @@ The below $mustData by itself will return 502 results but let's also apply a fil
             'nested' => false
         ];
 ```
+### Filter Example
 
 ```php
         $filterData['clauses'] = [[
@@ -104,6 +105,7 @@ The below $mustData by itself will return 502 results but let's also apply a fil
             
 Now you should have a result set of about 249.
 
+### Should
 We can also apply a "should" parameter to say we would like the employer to be Lotron, Zosis or Amazon. This would be treated as an "OR" statement in contrast to the "AND" statement of the MUST clause.
 
         $shouldData['clauses'] = [
@@ -129,7 +131,16 @@ We can also apply a "should" parameter to say we would like the employer to be L
         ->should($shouldData)
         ->query();
         
+If you have multiple OR scenarios that need to be considered independently, you could chain them as separate datasets:
+
+		Elastic::should($shouldDataSet1)
+		->should($shouldDataSet2)
+		->query();
+        
 Now you should only have 2 people who work at the places listed in our `should` and who are female. Let's sort them. Bear in mind your elastic index schema must have the correct datatypes assigned for search and sort. 
+
+
+### Sorting
 
 See `Using Field Types`for sorting using fields with specific field_types.
 
@@ -143,6 +154,8 @@ See `Using Field Types`for sorting using fields with specific field_types.
         ->should($shouldData)
         ->sort($sortData)
         ->query();
+
+### Pagination
         
 For pagination, the Elastic facade also accepts `page` and `size` methods, i.e. 
 
@@ -174,6 +187,23 @@ To query a different index than your .env default, or if you choose not to set a
 	            'operator' => 'eq',
 	            'value' => 'Zosis'
 	        ]);
+	        
+### Multimatch
+
+Larelastic will support [multimatch queries](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-match-query.html). The query [type](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-multi-match-query.html#multi-match-types) is set as 'cross_ fields' by default but you can pass in another type as a second parameter (e.g. Elastic::multimatch($multiMatchData, 'best_fields');
+
+    $multiMatchData[] = [
+        'field' => [
+            'product_description', 
+            'mpn', 
+            'manufacturer_name'
+        ],
+        'operator' => 'eq',
+        'value' => $keywords,
+        'nested' => false
+     ];
+
+    $response = Elastic::multimatch($multiMatchData)->query();
 	        
 ### Nested Queries
 
