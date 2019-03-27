@@ -112,17 +112,20 @@ We can also apply a "should" parameter to say we would like the employer to be L
             [
                 'field' => 'employer',
                 'operator' => 'eq',
-                'value' => 'Zosis'
+                'value' => 'Zosis',
+                'nested' => false
             ],
             [
                 'field' => 'employer',
                 'operator' => 'eq',
-                'value' => 'Lotron'
+                'value' => 'Lotron',
+                'nested' => false
             ],
             [
                 'field' => 'employer',
                 'operator' => 'eq',
-                'value' => 'Amazon'
+                'value' => 'Amazon',
+                'nested' => false
             ]
         ];
 

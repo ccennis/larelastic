@@ -89,26 +89,6 @@ class QueryService
         return $query;
     }
 
-    public static function buildShouldQuery($data)
-    {
-        $should = [];
-
-        foreach ($data['clauses'] as $clause) {
-
-            $array[] = (self::buildQuery($clause));
-        }
-
-        $should = [
-            'bool' => [
-                'should' =>
-                    $array,
-                'minimum_should_match' => 1
-            ],
-        ];
-
-        return $should;
-    }
-
     public static function buildFilterQuery($data)
     {
         $filter = [];
