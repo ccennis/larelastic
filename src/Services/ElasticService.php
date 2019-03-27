@@ -142,10 +142,12 @@ class ElasticService
 
     public function sort($data)
     {
-        if (isset($data['nested']) && $data['nested'] == true) {
-            $this->sort = NestedQueryService::buildSort($data);
-        } else {
-            $this->sort = QueryService::buildSort($data);
+        foreach($data as $sort) {
+            if (isset($sort['nested']) && $sort['nested'] == true) {
+                $this->sort[] = NestedQueryService::buildSort($sort);
+            } else {
+                $this->sort[] = QueryService::buildSort($sort);
+            }
         }
         return $this;
     }

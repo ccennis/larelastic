@@ -139,6 +139,7 @@ class NestedQueryService
             $nestedPath = $data['field'].$fieldType;
             return array(
                 $nestedPath => [
+                    'missing' => $data['missing'] ?? "_last",
                     'order' => $data['order'],
                     'nested_path' => substr($nestedPath, 0, strrpos($nestedPath, "."))
                 ]

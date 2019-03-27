@@ -144,16 +144,41 @@ Now you should only have 2 people who work at the places listed in our `should` 
 
 See `Using Field Types`for sorting using fields with specific field_types.
 
-        $sortData = [
+        $sortData[] = [
             'field' => 'account_number',
-            'order' => 'desc'
+            'order' => 'desc',
+            'nested' => false
         ];
-    
-        return Elastic::must($mustData)
-        ->filter($filterData)
-        ->should($shouldData)
-        ->sort($sortData)
-        ->query();
+        
+#### Missing Values
+You can optionally specify what to do with `missing` values regarding sort by passing in `'missing' => "_first"`. By default, they are sorted "_last". 
+
+#### Nested Sort
+You can pass in `true` for 'nested' param with sorting. This will require you to put the full path as the field:
+
+        $sortData[] = [
+             'field' => 'seller.rankNumber',
+              'order' => 'asc',
+              'nested' => true
+         ];
+                       
+This will produce the following json object under your sort object:
+
+		{
+		    "seller.rankNumber": {
+		        "missing": "_last",
+		        "order": "asc",
+		        "nested_path": "seller"
+		    }
+		}
+        
+Final query:    
+
+			return Elastic::must($mustData)
+			->filter($filterData)
+			->should($shouldData)
+			->sort($sortData)
+			->query();
 
 ### Pagination
         

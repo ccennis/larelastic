@@ -132,6 +132,7 @@ class QueryService
         if (isset($data['field'])) {
             return array(
                 $data['field'].$fieldType => [
+                    'missing' => $data['missing'] ?? "_last",
                     'order' => $data['order']
                 ]
             );
