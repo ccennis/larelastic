@@ -8,8 +8,10 @@ class NestedQueryService
     {
         $arr = explode(".", $field);
         if (count($arr) > 1) {
-            return array_shift($arr);
+            array_pop($arr);
+            return implode(".",$arr);
         }
+        return $arr;
     }
 
     //todo check for raw flag
