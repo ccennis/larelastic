@@ -2,11 +2,8 @@
 
 namespace ccennis\Larelastic\Models;
 
-use stdClass;
-
-class ElasticQuery
+class ElasticQuery extends ElasticBase
 {
-    public $query;
     public $sort;
     public $from;
     public $size;
@@ -28,24 +25,6 @@ class ElasticQuery
     public function _source($_source)
     {
         $this->_source = $_source !== null ? $_source : [];
-
-        return $this;
-    }
-
-    public function term($data)
-    {
-        $termArray['term'] = [$data['field'] => $data['value']];
-
-        $this->query = $termArray;
-
-        return $this;
-    }
-
-    public function bool($bool)
-    {
-        $boolArray['bool'] = $bool == null ? new stdClass() : $bool;
-
-        $this->query = $boolArray;
 
         return $this;
     }

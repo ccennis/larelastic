@@ -128,6 +128,13 @@ class NestedQueryService
                     ]
                 ];
                 break;
+
+            case "exists":
+
+                $search_string = ['exists' => [
+                    "field" => $nestPath .".". $data['field'],
+                ]];
+                break;
         }
         return $search_string;
     }

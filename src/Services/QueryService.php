@@ -5,7 +5,7 @@ namespace ccennis\Larelastic\Services;
 class QueryService
 {
     //todo check for raw flag
-    public static function buildQuery($data, $nestPath = null)
+    public static function buildQuery($data)
     {
         $search_string = [];
 
@@ -22,7 +22,7 @@ class QueryService
                 case 'eq':
 
                     $search_string = ['match' => [
-                        $nestPath . $data['field'] => $data['value'],
+                        $data['field'] => $data['value'],
                     ]];
 
                     break;
@@ -32,7 +32,7 @@ class QueryService
                         [
                             'query_string' => [
                                 'query' => $data['value'] . '*',
-                                'fields' => [$nestPath . $data['field']]
+                                'fields' => [$data['field']]
                             ]
                         ];
                     break;
@@ -42,7 +42,7 @@ class QueryService
                         [
                             'query_string' => [
                                 'query' => '*' . $data['value'],
-                                'fields' => [$nestPath . $data['field']]
+                                'fields' => [$data['field']]
                             ]
 
                         ];
@@ -52,7 +52,7 @@ class QueryService
                     $search_string = [
                         'query_string' => [
                             'query' => '*' . $data['value'] . '*',
-                            'fields' => [$nestPath . $data['field']]
+                            'fields' => [$data['field']]
                         ],
 
                     ];
@@ -62,14 +62,21 @@ class QueryService
                 case "gt":
                 case "lt":
 
-                    $range[]['range'][$nestPath . $data['field']] = [$data['operator'] => $data['value']];
+                    $range[]['range'][$data['field']] = [$data['operator'] => $data['value']];
                     $search_string = $range;
 
                     break;
 
                 case "between":
-                    $range[]['range'][$nestPath . $data['field']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
+                    $range[]['range'][$data['field']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
                     $search_string = $range;
+                    break;
+
+                case "exists":
+
+                    $search_string = ['exists' => [
+                        "field" => $data['field'],
+                    ]];
                     break;
             }
         }

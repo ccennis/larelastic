@@ -2,7 +2,8 @@
 
 namespace ccennis\Larelastic\Services;
 
-use ccennis\Larelastic\Models\ElasticQuery;
+use HAN\App\Elastic\Models\ElasticCount;
+use HAN\App\Elastic\Models\ElasticQuery;
 use GuzzleHttp\Client;
 use Config;
 use function str_replace;
@@ -62,7 +63,7 @@ class ElasticService
     public function index($index)
     {
         if ($index) {
-            $this->url = $this->base_url.= "/" . $index . "/_search";
+            $this->url = $this->base_url.= "/" . $index;
         }
         return $this;
     }
@@ -156,12 +157,10 @@ class ElasticService
 
     public function sort($data)
     {
-        foreach($data as $sort) {
-            if (isset($sort['nested']) && $sort['nested'] == true) {
-                $this->sort[] = NestedQueryService::buildSort($sort);
-            } else {
-                $this->sort[] = QueryService::buildSort($sort);
-            }
+        if (isset($data['nested']) && $data['nested'] == true) {
+            $this->sort = NestedQueryService::buildSort($data);
+        } else {
+            $this->sort = QueryService::buildSort($data);
         }
         return $this;
     }
@@ -202,18 +201,36 @@ class ElasticService
 
         $body = $params == null ? $this->getQuery() : $params;
 
-        $result = $client->request('POST', $this->url, [
+        $result = $client->request('POST', $this->url. "/_search", [
             'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
             'body' => $body
         ]);
 
         $this->destroy();
+        $this->__construct();
 
         return json_decode($result->getBody()->getContents());
     }
 
-    public function getQuery(){
+    public function count($params = null){
 
+        $client = new Client();
+
+        $body = $params == null ? $this->getCount() : $params;
+
+        $result = $client->request('POST', $this->url. "/_count", [
+            'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
+            'body' => $body
+        ]);
+
+        $this->destroy();
+        $this->__construct();
+
+        return json_decode($result->getBody()->getContents())->count;
+    }
+
+    public function getQuery()
+    {
         $elasticQuery = new ElasticQuery();
 
         $elasticQuery->_source($this->_source);
@@ -223,6 +240,15 @@ class ElasticService
         $elasticQuery->from($this->from, $this->page);
 
         return json_encode($elasticQuery);
+    }
+
+    public function getCount(){
+
+        $elasticCount = new ElasticCount();
+
+        $elasticCount->bool($this->bool);
+
+        return json_encode($elasticCount);
     }
 
     private function destroy() {
