@@ -28,7 +28,7 @@ class ElasticService
         //todo add connection here
         $this->sort = [];
         $this->base_url = Config::get('search.default.base_url');
-        $this->url = $this->base_url."/".Config::get('search.default.index')."/_search";
+        $this->url = $this->base_url."/".Config::get('search.default.index');
     }
 
     //simple query select -- get where equals equivalent
@@ -48,24 +48,31 @@ class ElasticService
 
     public function id($id, $type){
 
-        $this->url = str_replace('/_search', "/".$type."/".$id, $this->url);
-
         $client = new Client();
 
-        $result = $client->request('GET', $this->url, [
+        $result = $client->request('GET', $this->url."/".$type."/".$id, [
             'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
         ]);
 
-        return json_decode($result->getBody()->getContents());
+        $this->destroy();
+        $this->__construct();
 
+        return json_decode($result->getBody()->getContents());
     }
 
     public function index($index)
     {
+        $this->base_url = $this->resetBaseUrl();
+
         if ($index) {
             $this->url = $this->base_url.= "/" . $index;
         }
         return $this;
+    }
+
+    public function resetBaseUrl(){
+
+        return Config::get('search.default.base_url');
     }
 
     public function term($data){
@@ -157,10 +164,12 @@ class ElasticService
 
     public function sort($data)
     {
-        if (isset($data['nested']) && $data['nested'] == true) {
-            $this->sort = NestedQueryService::buildSort($data);
-        } else {
-            $this->sort = QueryService::buildSort($data);
+        foreach($data as $sort) {
+            if (isset($sort['nested']) && $sort['nested'] == true) {
+                $this->sort[] = NestedQueryService::buildSort($sort);
+            } else {
+                $this->sort[] = QueryService::buildSort($sort);
+            }
         }
         return $this;
     }
