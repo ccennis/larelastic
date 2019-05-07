@@ -2,8 +2,9 @@
 
 namespace ccennis\Larelastic\Services;
 
-use HAN\App\Elastic\Models\ElasticCount;
-use HAN\App\Elastic\Models\ElasticQuery;
+use ccennis\Larelastic\Models\ElasticAggs;
+use ccennis\Larelastic\Models\ElasticCount;
+use ccennis\Larelastic\Models\ElasticQuery;
 use GuzzleHttp\Client;
 use Config;
 use function str_replace;
@@ -19,6 +20,7 @@ class ElasticService
     public $page;
     public $url;
     public $term;
+    public $aggregations;
 
     /**
      * ElasticService constructor.
@@ -204,6 +206,18 @@ class ElasticService
         }
     }
 
+    public function aggregate($data){
+        foreach($data as $agg){
+            if (isset($agg['nested']) && $agg['nested'] == true){
+                $this->aggregations = NestedQueryService::buildAgg($agg);
+            } else {
+                $this->aggregations = QueryService::buildAgg($agg);
+            }
+        }
+
+        return $this;
+    }
+
     public function query($params = null){
 
         $client = new Client();
@@ -238,6 +252,23 @@ class ElasticService
         return json_decode($result->getBody()->getContents())->count;
     }
 
+    public function query_with_aggs($params = null){
+
+        $client = new Client();
+
+        $body = $params == null ? $this->getAggregatedQuery() : $params;
+
+        $result = $client->request('POST', $this->url. "/_search", [
+            'headers' => ['content-type' => 'application/json', 'Accept' => 'application/json'],
+            'body' => $body
+        ]);
+
+        $this->destroy();
+        $this->__construct();
+
+        return json_decode($result->getBody()->getContents());
+    }
+
     public function getQuery()
     {
         $elasticQuery = new ElasticQuery();
@@ -251,7 +282,30 @@ class ElasticService
         return json_encode($elasticQuery);
     }
 
+    public function getAggregatedQuery()
+    {
+        $elasticQuery = new ElasticAggs();
+
+        $elasticQuery->_source($this->_source);
+        $elasticQuery->bool($this->bool);
+        $elasticQuery->sort($this->sort);
+        $elasticQuery->size($this->size);
+        $elasticQuery->from($this->from, $this->page);
+        $elasticQuery->aggs($this->aggregations);
+
+        return json_encode($elasticQuery);
+    }
+
     public function getCount(){
+
+        $elasticCount = new ElasticCount();
+
+        $elasticCount->bool($this->bool);
+
+        return json_encode($elasticCount);
+    }
+
+    public function getAggs(){
 
         $elasticCount = new ElasticCount();
 

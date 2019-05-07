@@ -83,6 +83,81 @@ class QueryService
         return $search_string;
     }
 
+    public static function buildAgg($data)
+    {
+
+        $agg_body = [];
+
+        if (isset($data['agg_type'])) {
+            switch ($data['agg_type']) {
+
+                //technically this would be "bucket" aggregation.
+                case 'histogram':
+
+                    $agg_body = [
+                        $data['agg_name'] => [
+                            'field' => $data['field'],
+                            'interval' => $data['interval'],
+                            'min_doc_count' => $data['min_doc_count'] ?? 0,
+                            'extended_bounds' => [
+                                "min" => $data['bounds_min'],
+                                "max" => $data['bounds_max']
+                            ]
+                        ]
+                    ];
+                    break;
+
+                //i.e. sum, count, avg
+                case 'metric_aggregation':
+
+                    $agg_body = [
+                        $data['agg_name'] => [
+                            $data['operator'] => [
+                                'field' => $data['value']
+                            ]
+                        ]
+                    ];
+
+                    break;
+
+                case 'pipeline':
+
+                    $bucket_type = $data['bucket_type']."_bucket";
+
+                    $agg_body = [
+                        //i.e. "monthly_sales"
+                        $data['bucket_name'] => [
+                            'date_histogram' => [
+                                'field' => $data['histogram_field'],
+                                'interval' => $data['interval'],
+                                'min_doc_count' => $data['min_doc_count'] ?? 0,
+                                'extended_bounds' => [
+                                    "min" => $data['bounds_min'],
+                                    "max" => $data['bounds_max']
+                                ]
+                            ],
+                            'aggs' => [
+                                $data['bucket_field'] => [
+                                    $data['bucket_type'] => [
+                                        'field' => $data['agg_field']
+                                    ]
+                                ]
+                            ]
+                        ],
+                        $data['bucket_type'] => [
+                            //i.e. sum_bucket/ max_bucket
+                            $bucket_type => [
+                                'buckets_path' => $data['bucket_name'] .">". $data['bucket_field']
+                            ]
+                        ]
+
+                    ];
+                    break;
+            }
+        }
+        return $agg_body;
+    }
+
     public function getByIds($ids)
     {
         $query = array(

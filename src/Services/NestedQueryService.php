@@ -95,15 +95,14 @@ class NestedQueryService
             case "gt":
             case "lt":
 
-                $range[]['range'][$nestPath . $data['field']] = [$data['operator'] => $data['value']];
-
                 $search_string[]['nested'] = [
                     'path' => $nestPath,
                     'query' => [
                         'bool' => [
                             'must' => [
                                 'range' => [
-                                    $nestPath .".".  $data['field'] => $range
+                                    $nestPath .".".$data['field'] => [
+                                        $data['operator'] => $data['value']]
                                 ]
                             ]
                         ]
@@ -113,7 +112,6 @@ class NestedQueryService
                 break;
 
             case "between":
-                $range[]['range'][$nestPath . $data['field']] = ['gte' => $data['value1'], 'lte' => $data['value2']];
 
                 $search_string[]['nested'] = [
                     'path' => $nestPath,
@@ -121,22 +119,111 @@ class NestedQueryService
                         'bool' => [
                             'must' => [
                                 'range' => [
-                                    $nestPath .".". $data['field'] => $range
+                                    $nestPath . "." . $data['field'] => [
+                                        ['gte' => $data['value1'], 'lte' => $data['value2']]
+                                    ]
                                 ]
                             ]
                         ]
                     ]
                 ];
+
                 break;
 
             case "exists":
-
-                $search_string = ['exists' => [
-                    "field" => $nestPath .".". $data['field'],
-                ]];
-                break;
+                $search_string[]['nested'] = [
+                    'path' => $nestPath,
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                'exists' => [
+                                    'field' => $nestPath . "." . $data['field']
+                                ]
+                            ]
+                        ]
+                    ]
+                ];
         }
         return $search_string;
+    }
+
+    public static function buildAgg($data)
+    {
+        $nestPath = self::getNestpath($data['histogram_field']);
+        $agg_body = [];
+
+        if (isset($data['agg_type'])) {
+            switch ($data['agg_type']) {
+
+                //technically this would be "bucket" aggregation.
+                case 'histogram':
+
+                    $agg_body = [
+                        $data['agg_name'] => [
+                            'field' => $data['field'],
+                            'interval' => $data['interval'],
+                            'min_doc_count' => $data['min_doc_count'] ?? 0,
+                            'extended_bounds' => [
+                                "min" => $data['bounds_min'],
+                                "max" => $data['bounds_max']
+                            ]
+                        ]
+                    ];
+                    break;
+
+                //i.e. sum, count, avg
+                case 'metric_aggregation':
+
+                    $agg_body = [
+                        $data['agg_name'] => [
+                            $data['operator'] => [
+                                'field' => $data['value']
+                            ]
+                        ]
+                    ];
+
+                    break;
+
+                case 'pipeline':
+
+                    $bucket_type = $data['bucket_type'] . "_bucket";
+
+                    $agg_body = [
+                        'root' => [ 'nested' =>
+                            ['path' => $nestPath ],
+                            'aggs' => [
+                                //i.e. "monthly_sales"
+                                $data['bucket_name'] => [
+                                    'date_histogram' => [
+                                        'field' => $data['histogram_field'],
+                                        'interval' => $data['interval'],
+                                        'min_doc_count' => $data['min_doc_count'] ?? 0,
+                                        'extended_bounds' => [
+                                            "min" => $data['bounds_min'],
+                                            "max" => $data['bounds_max']
+                                        ]
+                                    ],
+                                    'aggs' => [
+                                        $data['bucket_field'] => [
+                                            $data['bucket_type'] => [
+                                                'field' => $data['agg_field']
+                                            ]
+                                        ]
+                                    ]
+                                ],
+                                $data['bucket_type'] => [
+                                    //i.e. sum_bucket/ max_bucket
+                                    $bucket_type => [
+                                        'buckets_path' => $data['bucket_name'] . ">" . $data['bucket_field']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ];
+                    break;
+            }
+        }
+        return $agg_body;
     }
 
     public static function buildSort($data)
