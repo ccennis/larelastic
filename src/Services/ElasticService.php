@@ -144,23 +144,22 @@ class ElasticService
     public function should($data)
     {
         if (isset($data['clauses'])) {
-            foreach($data['clauses'] as $clause) {
+            foreach ($data['clauses'] as $clause) {
                 if (isset($clause['nested']) && $clause['nested'] == true) {
                     $shouldArray[] = NestedQueryService::buildQuery($clause);
                 } else {
                     $shouldArray[] = QueryService::buildQuery($clause);
                 }
             }
+
+            $this->bool['must'][] = [
+                'bool' => [
+                    'should' =>
+                        $shouldArray,
+                    'minimum_should_match' => 1
+                ],
+            ];
         }
-
-        $this->bool['must'][] = [
-            'bool' => [
-                'should' =>
-                    $shouldArray,
-                'minimum_should_match' => 1
-            ],
-        ];
-
         return $this;
     }
 
