@@ -2,7 +2,7 @@
  
 A package to quickly get off the ground with querying your elastic index by making use of the query, bool, sort and filter methods. 
 
-###Contents
+### Contents
 * [Installation](#installation)
 * [Usage and Examples](#usage)
 	* [Filter Example](#filter)
