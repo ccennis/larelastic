@@ -33,13 +33,13 @@ composer require ccennis/larelastic
 ##### Add the Third Party Service Providers in config/app.php
 
 ```php
-ccennis\Larelastic\Providers\LarelasticServiceProvider::class
+ccennis\larelastic\Providers\LarelasticServiceProvider::class
 ```
 
 ##### Add the Third Party Aliases in config/app.php
 
 ```php
-'Elastic' => ccennis\Larelastic\Facades\Elastic::class
+'Elastic' => ccennis\larelastic\Facades\Elastic::class
 ```
 
 ##### Get Config Files
