@@ -25,7 +25,7 @@ A package to quickly get off the ground with querying your elastic index by maki
 #### Require the package from **command line**
 
 ```text
-composer require ccennis/Larelastic
+composer require ccennis/larelastic
 ```
 
 ### Laravel
