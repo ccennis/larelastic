@@ -1,6 +1,6 @@
 <?php
 
-namespace ccennis\Larelastic\Models;
+namespace ccennis\larelastic\Models;
 
 
 class ElasticBase

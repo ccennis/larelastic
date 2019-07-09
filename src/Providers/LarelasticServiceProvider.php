@@ -1,6 +1,6 @@
 <?php
 
-namespace ccennis\Larelastic\Providers;
+namespace ccennis\larelastic\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -34,7 +34,7 @@ class LarelasticServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('ccennis.larelastic', function ($app) {
-            $larelastic = $this->app->make('ccennis\Larelastic\Services\ElasticService');
+            $larelastic = $this->app->make('ccennis\larelastic\Services\ElasticService');
 
             return $larelastic;
         });

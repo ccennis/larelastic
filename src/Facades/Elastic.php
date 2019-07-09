@@ -1,6 +1,6 @@
 <?php
 
-namespace ccennis\Larelastic\Facades;
+namespace ccennis\larelastic\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

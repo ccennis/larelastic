@@ -6,7 +6,7 @@
  * Time: 10:38 AM
  */
 
-namespace ccennis\Larelastic\Models;
+namespace ccennis\larelastic\Models;
 
 
 class ElasticAggs extends ElasticQuery {

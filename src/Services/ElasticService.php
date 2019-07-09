@@ -1,10 +1,10 @@
 <?php
 
-namespace ccennis\Larelastic\Services;
+namespace ccennis\larelastic\Services;
 
-use ccennis\Larelastic\Models\ElasticAggs;
-use ccennis\Larelastic\Models\ElasticCount;
-use ccennis\Larelastic\Models\ElasticQuery;
+use ccennis\larelastic\Models\ElasticAggs;
+use ccennis\larelastic\Models\ElasticCount;
+use ccennis\larelastic\Models\ElasticQuery;
 use GuzzleHttp\Client;
 use Config;
 use function str_replace;

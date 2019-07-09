@@ -1,6 +1,6 @@
 <?php
 
-namespace ccennis\Larelastic\Services;
+namespace ccennis\larelastic\Services;
 
 class QueryService
 {
