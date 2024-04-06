@@ -13,6 +13,6 @@ class Elastic extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'cardkingdom.elastic';
+        return 'larelastic.elastic';
     }
 }

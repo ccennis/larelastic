@@ -64,7 +64,7 @@ class ElasticServiceProvider extends ServiceProvider
 
     public function provides()
     {
-        return ['cardkingdom.elastic'];
+        return ['larelastic.elastic'];
     }
 
     /**
@@ -75,7 +75,7 @@ class ElasticServiceProvider extends ServiceProvider
     public function register()
     {
         //get the facade that powers an elastic connection instance
-        $this->app->singleton('cardkingdom.elastic', function () {
+        $this->app->singleton('larelastic.elastic', function () {
 
             //if we have a pw, it needs it. otherwise its a dev env
             $isPwProtected = config('elastic.client.password');
