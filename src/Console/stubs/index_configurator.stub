@@ -1,0 +1,27 @@
+<?php
+
+namespace DummyNamespace;
+
+use Larelastic\Elastic\Models\IndexConfigurator;
+use Larelastic\Elastic\Traits\Migratable;
+
+class DummyClass extends IndexConfigurator
+{
+    use Migratable;
+
+    public $name = 'DummyName';
+
+    /**
+     * @var array
+     */
+    protected $settings = [
+        //
+    ];
+
+    /**
+     * @var array
+     */
+    protected $mappings = [
+        //
+    ];
+}

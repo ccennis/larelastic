@@ -1,0 +1,30 @@
+# Created by .ignore support plugin (hsz.mobi)
+# OSX
+._*
+*.DS_Store
+
+
+### Intellij+iml ###
+atlassian-ide-plugin.xml
+.idea
+.idea_modules
+*.iml
+*.ipr
+
+### Node ###
+/node_modules
+npm-debug.log*
+.eslintcache
+.grunt
+.npm
+.yarn-integrity
+*.tgz
+
+### PHP / Laravel ###
+composer.phar
+/vendor
+/public/storage
+/storage/*.key
+.env
+*.map
+*.csv

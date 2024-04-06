@@ -1,0 +1,21 @@
+<?php
+
+namespace DummyNamespace;
+
+use Larelastic\Elastic\Traits\Searchable;
+use Larelastic\Elastic\Traits\Migratable;
+use Illuminate\Database\Eloquent\Model;
+
+class DummyClass extends Model
+{
+    use Migratable;
+    use Searchable;
+
+    /**
+     * @var string
+     */
+    protected $indexConfigurator = DummyIndexConfigurator;
+
+    protected $fillable = [];
+
+}
