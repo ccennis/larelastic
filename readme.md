@@ -47,11 +47,10 @@ An indexing and querying package to create, maintain and search an elastic insta
 ##### Add the following variables to your .env file
  
  ````php
- ELASTICSEARCH_HOST=http://localhost
- ELASTICSEARCH_PORT=9200
- 
- SCOUT_DRIVER=elasticsearch
- SCOUT_ELASTIC_HOST=docker.for.mac.localhost
+ELASTICSEARCH_HOST=http://elastic:9200
+ELASTICSEARCH_PORT=9200
+SCOUT_DRIVER=elastic
+SCOUT_ELASTIC_HOST=http://elastic:9200
  ````
  
 ## <a id=indexing></a> Indexing
@@ -60,29 +59,29 @@ An indexing and querying package to create, maintain and search an elastic insta
 Since this package relies on the existence of models and index configurators to create, search and maintain indices,
 you must run the below commands to generate and set up the appropriate objects.
 
-1.) create an indexConfigurator model (in this example, "Product"):
+1.) create an indexConfigurator model (in this example, "Tattoo"):
 
 ```
- php artisan make:index-configurator ProductIndexConfigurator
+ php artisan make:index-configurator TattooIndexConfigurator
 ```
  
 2.) create your searchable Model:
 
 ```
-php artisan make:searchable-model Product --index-configurator=ProductIndexConfigurator
+php artisan make:searchable-model Product --index-configurator=TattooIndexConfigurator
 ```
 
 <div id="createMaintain">
 3.) create your Elastic index using model with full path:
 
 ```
-php artisan elastic:create-index "App\Catalog\Models\Product"
+php artisan elastic:create-index "App\Models\Tattoo"
 ```
 
 ## <a id=indexing></a> Indexing
 4.) add data to your index
 
-```php artisan scout:import "App\Catalog\Models\Product"```
+```php artisan scout:import "App\Models\Tattoo"```
 
 
 ### <a id=migrating></a>Migrating to new Index
@@ -96,19 +95,19 @@ This process creates a new index, imports all data from previous to this index, 
 ### <a id=updateIndex></a> Update a mapping:
 
 ```
-php artisan elastic:update-mapping "App\{Namespace}\Models\MyModel"
+php artisan elastic:update-mapping "App\\Models\MyModel"
 ```
 
 ### Update index:
 
 ```
-php artisan elastic:update-index "App\{Namespace}\Models\MyModelConfigurator"
+php artisan elastic:update-index "App\Models\MyModelConfigurator"
 ```
 
 ### <a id=dropIndex></a> Drop index:
 
 ```
-php artisan elastic:drop-index "App\{Namespace}\Models\MyModel"
+php artisan elastic:drop-index "App\Models\MyModel"
 ```
 
 ### <a id=additionalOptions></a> Additional Configuration Options:
@@ -148,8 +147,8 @@ exists	  | the value is not null and is found in index | ->where('col', 'exists'
 
 ```php
 
-$response = Product::search()->where('name', 'mold')->get();
-$response = Product::search()->where('name', '=', 'mold')->get();
+$response = Tattoo::search()->where('name', 'mold')->get();
+$response = Tattoo::search()->where('name', '=', 'mold')->get();
 
 
 ```
@@ -160,7 +159,7 @@ Both of the above queries are valid. Default operator is '=' unless provided.
 
 ```php
 
-$response = Product::search()->orWhere(['name', '=', 'mold'],['name', '=', 'Element'])->get();
+$response = Tattoo::search()->orWhere(['name', '=', 'mold'],['name', '=', 'Element'])->get();
 
 
 ```
@@ -168,7 +167,7 @@ takes two arrays, makes use of the `should` bool operator from Elastic. Evaluate
 
 ```php
 
-$response = Product::search()->orWhere(function($query, $boolean){
+$response = Tattoo::search()->orWhere(function($query, $boolean){
             $query->where('name', '=','Mold', $boolean)
             ->where('model', '=','test', $boolean);
             return $query;
@@ -187,7 +186,7 @@ Closure, makes use of multiple groupings under `should` bool operator from Elast
 
 ```php
 
- $response = Product::search()->whereMulti(['name', 'model'],'=','Mold')->get();
+ $response = Tattoo::search()->whereMulti(['name', 'model'],'=','Mold')->get();
  
 ```
 
@@ -195,7 +194,7 @@ This makes use of the [multimatch](https://www.elastic.co/guide/en/elasticsearch
 
 ```php
 
- $response = Product::search()->whereMulti(['name', 'model'],'=','Mold', 'best_fields')->get();
+ $response = Tattoo::search()->whereMulti(['name', 'model'],'=','Mold', 'best_fields')->get();
  
 ```
 
@@ -203,7 +202,7 @@ This makes use of the [multimatch](https://www.elastic.co/guide/en/elasticsearch
 
 ```php
 
- $response = Product::search()->whereMulti(['name', 'model'],'=','Mold')->paginate(20);
+ $response = Tattoo::search()->whereMulti(['name', 'model'],'=','Mold')->paginate(20);
  
 ```
 
@@ -227,7 +226,7 @@ total: 36
 Simple Sorting:
 
 ```php
-$response = Product::search()->where('name', 'mold')
+$response = Tattoo::search()->where('name', 'mold')
 sort->('name','desc')->get()
 ```
 Sorting defaults to asc and can be stacked for multiple sorts. 
@@ -235,7 +234,7 @@ Sorting defaults to asc and can be stacked for multiple sorts.
 If you need to specify a field_type for the sort field (i.e. 'keyword' or 'raw') you can include it as a param:
 
 ```php
-$response = Product::search()->where('name', 'mold')
+$response = Tattoo::search()->where('name', 'mold')
 sort->('name', 'desc', 'keyword')->get()
 ```
 The above may be necessary in the event you are already querying a nested object and want to ensure the datatype is listed separately.
@@ -244,7 +243,7 @@ The above may be necessary in the event you are already querying a nested object
 
 ```php
 
-$response = Product::search()->where('name', 'mold')
+$response = Tattoo::search()->where('name', 'mold')
 ->rollup('card_color')->get();
 
 ```
