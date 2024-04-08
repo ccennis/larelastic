@@ -30,4 +30,7 @@ class Datatypes
         'type' => 'scaled_float',
         'scaling_factor' => 100,
     ];
+    const GEO_POINT = [
+        'type' => 'geo_point',
+    ];
 }
