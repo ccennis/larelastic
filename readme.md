@@ -17,8 +17,9 @@ An indexing and querying package to create, maintain and search an elastic insta
 	 	* [Multimatch Example](#multi)
 	 	* [Pagination Example](#pagination)
 	 	* [Sorting Example](#sorting)
-	 	* [Aggs Example](#aggs)
-	 	* [Multimatch Example](#multimatch)
+        * [GeoSorting Example](#geosorting)
+        * [Aggs Example](#aggs)
+        * [Multimatch Example](#multimatch)
  
  
 ## <a id=installation></a>Installation 
@@ -238,6 +239,52 @@ $response = Tattoo::search()->where('name', 'mold')
 sort->('name', 'desc', 'keyword')->get()
 ```
 The above may be necessary in the event you are already querying a nested object and want to ensure the datatype is listed separately.
+
+#### <a id="geosorting"></a> Geosorting
+
+Sorting by distance based on latitude and longitude. Sample query in Elastic:
+
+```json
+{
+"sort": [{
+		"_geo_distance": {
+			"location": {
+				"lat": 40,
+				"lon": -70
+			},
+			"order": "asc",
+			"unit": "mi",
+			"mode": "min",
+			"distance_type": "arc",
+			"ignore_unmapped": true
+		}
+	]}
+}
+```
+In order to use this in the package, you can use the following syntax:
+
+```php
+$data = [
+                'field' => 'location_lat_long', 
+                'lat' => $lat,
+                'long' => $lat,
+            ];
+
+            $this->search->buildGeoSort($data);
+```
+
+Valid fields to pass in the data array are above in the elastic query. 
+
+Valid arguments for unit include: mi (miles), in (inches), yd (yards), km (kilometers), cm (centimeters), mm (millimeters).
+
+There are two distance calculation modes: arc (the default), and plane. The arc calculation is the most accurate.
+```json
+{
+
+```php
+
+mi (miles), in (inches), yd (yards), km (kilometers), cm (centimeters), mm (millimeters).
+
 
 #### <a id="aggs"></a>Aggregation (aggs)
 
