@@ -195,6 +195,30 @@ class NestedQueryService
         return $search_string;
     }
 
+    public static function buildGeoSort($data)
+    {
+        $nestedPath = $data['field'];
+
+        if (isset($data['field'])) {
+            return array(
+                "_geo_distance" => [
+                    $nestedPath => [
+                        "lat" => $data['lat'],
+                        "lon" => $data['lon']
+                    ],
+                    "order" => $data['order'] ?? 'asc',
+                    "unit" => $data['unit'] ?? 'mi',
+                    "mode" => $data['mode'] ?? 'min',
+                    "distance_type" => $data['distance_type'] ?? 'arc',
+                    "ignore_unmapped" => $data['ignore_unmapped'] ?? false,
+                    'nested' => [
+                        "path" => substr($nestedPath, 0, strrpos($nestedPath, "."))
+                    ]
+                ]
+            );
+        }
+    }
+
     public static function buildSort($data)
     {
         //raw or keyword, for example

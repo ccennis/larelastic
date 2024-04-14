@@ -192,6 +192,30 @@ class QueryService
         }
     }
 
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public static function buildGeoSort($data)
+    {
+        if (isset($data['field'])) {
+            return array(
+                "_geo_distance" => [
+                    $data['field'] => [
+                        "lat" => $data['lat'],
+                        "lon" => $data['lon']
+                    ],
+                    "order" => $data['order'] ?? 'asc',
+                    "unit" => $data['unit'] ?? 'mi',
+                    "mode" => $data['mode'] ?? 'min',
+                    "distance_type" => $data['distance_type'] ?? 'arc',
+                    "ignore_unmapped" => $data['ignore_unmapped'] ?? false
+                ]
+            );
+        }
+    }
+
     /**
      * @param $data
      * @return array

@@ -6,6 +6,8 @@ namespace Larelastic\Elastic\Console;
 
 use Larelastic\Elastic\Facades\Elastic;
 use Larelastic\Elastic\Payloads\IndexPayload;
+use Larelastic\Elastic\Payloads\RawPayload;
+use Larelastic\Elastic\Payloads\TypePayload;
 use Larelastic\Elastic\Traits\Migratable;
 use Larelastic\Elastic\Traits\RequiresModelArgument;
 use Illuminate\Console\Command;

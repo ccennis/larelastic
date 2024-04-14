@@ -484,6 +484,18 @@ class QueryBuilder extends Builder
         return $this;
     }
 
+
+    public function geoSort($data)
+    {
+        $nestPath = $this->getNestPath($data['field']);
+        $service = $nestPath !== null ? NestedQueryService::class : QueryService::class;
+
+        $this->sort[] = $service::buildGeoSort($data);
+
+        return $this;
+    }
+
+
     public function sort($field, $order = null, $fieldType = null)
     {
         $data = [
