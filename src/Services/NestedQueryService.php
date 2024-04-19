@@ -219,6 +219,28 @@ class NestedQueryService
         }
     }
 
+    public static function buildGeoQuery($data)
+    {
+        $nestedPath = $data['col'];
+
+        $geoQuery = [
+            'nested' => [
+                'path' => substr($nestedPath, 0, strrpos($nestedPath, ".")),
+                'query' => [
+                    'geo_distance' => [
+                        'distance' => $data['distance'],
+                        $nestedPath => [
+                            "lat" => $data['lat'],
+                            "lon" => $data['lon']
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        return $geoQuery;
+    }
+
     public static function buildSort($data)
     {
         //raw or keyword, for example

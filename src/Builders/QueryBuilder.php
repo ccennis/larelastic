@@ -484,6 +484,22 @@ class QueryBuilder extends Builder
         return $this;
     }
 
+    public function whereDistance($col, $lat, $lon, $distance)
+    {
+        $nestPath = $this->getNestPath($col);
+        $service = $nestPath !== null ? NestedQueryService::class : QueryService::class;
+
+
+        $this->bool['must'][] = $service::buildGeoQuery([
+            'col' => $col,
+            'lat' => $lat,
+            'lon' => $lon,
+            'distance' => $distance
+        ]);
+
+        return $this;
+    }
+
 
     public function geoSort($data)
     {

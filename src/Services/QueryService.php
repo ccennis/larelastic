@@ -134,7 +134,7 @@ class QueryService
      * @param array $ids
      * @return array
      */
-    public function getByIds(Array $ids)
+    public function getByIds(array $ids)
     {
         $query = array(
             'ids' => [
@@ -164,6 +164,20 @@ class QueryService
         $filter = $array;
 
         return $filter;
+    }
+
+    public static function buildGeoQuery($data)
+    {
+        $geoQuery = [
+            'geo_distance' => [
+                'distance' => $data['distance'],
+                $data['col'] => [
+                    "lat" => $data['lat'],
+                    "lon" => $data['lon']
+                ],
+            ]];
+
+        return $geoQuery;
     }
 
 
