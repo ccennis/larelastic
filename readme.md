@@ -273,6 +273,18 @@ $data = [
             $this->search->buildGeoSort($data);
 ```
 
+There is also support to return the distance query as raw syntax, which can be used in the Top Level OR statement. An example:
+
+```php
+        $latLongArray = explode(",", $this->user->location_lat_long);
+
+        $response['bool']['must'] = $this->search->whereDistanceSyntax('artist.location_lat_long', $latLongArray[0], $latLongArray[1], '25mi');
+
+        return $response;
+```
+
+
+
 Valid fields to pass in the data array are above in the elastic query. 
 
 Valid arguments for unit include: mi (miles), in (inches), yd (yards), km (kilometers), cm (centimeters), mm (millimeters).
