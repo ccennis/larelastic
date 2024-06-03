@@ -184,14 +184,18 @@ class QueryBuilder extends Builder
     }
 
     //this is to build a TOP LEVEL compound query, i.e. THIS or THAT with multiple clauses
-    public function nestedOr($shouldClauses)
+    public function nestedOr($shouldClauses, $minMatch = null)
     {
+        if (!$minMatch) {
+            $minMatch = count($shouldClauses);
+        }
+
         $service = QueryService::class;
 
         foreach ($shouldClauses as $clauses) {
             $result[] = [
                 'bool' => [
-                    'minimum_should_match' => count($clauses),
+                    'minimum_should_match' => $minMatch,
                     'should' => $clauses
                 ]
             ];
@@ -321,7 +325,7 @@ class QueryBuilder extends Builder
         return $shouldClauses;
     }
 
-    //match fronts of words, max ngrams defined in mapping 
+    //match fronts of words, max ngrams defined in mapping
     public function wherePrefix($field, $phrases, $type = 'all_of', $ordered = false, $filter = null)
     {
         $phrases = is_array($phrases) ? $phrases : [$phrases];
@@ -498,6 +502,22 @@ class QueryBuilder extends Builder
         ]);
 
         return $this;
+    }
+
+    //returns distance query not attached to "this"
+    public function whereDistanceSyntax($col, $lat, $lon, $distance)
+    {
+        $nestPath = $this->getNestPath($col);
+        $service = $nestPath !== null ? NestedQueryService::class : QueryService::class;
+
+        $must[] = $service::buildGeoQuery([
+            'col' => $col,
+            'lat' => $lat,
+            'lon' => $lon,
+            'distance' => $distance
+        ]);
+
+        return $must;
     }
 
 
