@@ -11,11 +11,6 @@ class ElasticQuery
     public $size;
     public $_source;
     public $track_total_hits;
-    public $query;
-    public $aggs;
-    public $post_filter;
-    public $suggest;
-    public $page;
 
     /**
      * ElasticQuery constructor.
