@@ -35,8 +35,5 @@ class TypePayload extends IndexPayload
         $this->model = $model;
 
         parent::__construct($model->getIndexConfigurator());
-
-        $this->payload['type'] = $model->searchableAs();
-        $this->protectedKeys[] = 'type';
     }
 }
