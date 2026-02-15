@@ -74,23 +74,33 @@ class ElasticServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //get the facade that powers an elastic connection instance
         $this->app->singleton('larelastic.elastic', function () {
-
-            //if we have a pw, it needs it. otherwise its a dev env
+            $apiKey = config('elastic.client.api_key');
             $isPwProtected = config('elastic.client.password');
 
-            $hosts = !empty($isPwProtected) ? [config('elastic.client.auth_string')] : config('elastic.client.hosts');
-
-            $es = new ClientBuilder();
-            return $es->create()
+            $builder = ClientBuilder::create()
                 ->setConnectionParams([
                     'client' => [
                         'timeout'         => config('elastic.client.timeout_in_seconds'),
                         'connect_timeout' => config('elastic.client.connect_timeout_in_seconds'),
-                    ]])
-                ->setHosts($hosts)
-                ->build();
+                    ],
+                ]);
+
+            if (!empty($apiKey)) {
+                // API key auth (Elastic Cloud)
+                $decoded = base64_decode($apiKey);
+                [$id, $key] = explode(':', $decoded, 2);
+                $builder->setHosts(config('elastic.client.hosts'))
+                    ->setApiKey($id, $key);
+            } elseif (!empty($isPwProtected)) {
+                // Username/password auth (Bonsai, etc.)
+                $builder->setHosts([config('elastic.client.auth_string')]);
+            } else {
+                // No auth (local dev)
+                $builder->setHosts(config('elastic.client.hosts'));
+            }
+
+            return $builder->build();
         });
     }
 }
