@@ -79,11 +79,8 @@ class ElasticServiceProvider extends ServiceProvider
             $isPwProtected = config('elastic.client.password');
 
             $builder = ClientBuilder::create()
-                ->setConnectionParams([
-                    'client' => [
-                        'timeout'         => config('elastic.client.timeout_in_seconds'),
-                        'connect_timeout' => config('elastic.client.connect_timeout_in_seconds'),
-                    ],
+                ->setHttpClientOptions([
+                    'timeout' => config('elastic.client.timeout_in_seconds'),
                 ]);
 
             if (!empty($apiKey)) {
