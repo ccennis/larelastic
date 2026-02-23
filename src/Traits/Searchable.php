@@ -107,7 +107,7 @@ trait Searchable
      */
     public function searchableQuery()
     {
-        return $self->newQuery();
+        return $this->newQuery();
     }
 
     /**

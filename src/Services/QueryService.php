@@ -138,7 +138,6 @@ class QueryService
     {
         $query = array(
             'ids' => [
-                'type' => 'items',
                 'values' =>
                     $ids
             ]

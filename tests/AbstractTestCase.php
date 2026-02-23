@@ -1,16 +1,13 @@
 <?php
 
-
 namespace Larelastic\Elastic\Tests;
-
 
 use PHPUnit\Framework\TestCase;
 
 class AbstractTestCase extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
-        Config::reset();
     }
 }

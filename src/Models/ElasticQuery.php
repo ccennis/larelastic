@@ -2,8 +2,10 @@
 
 namespace Larelastic\Elastic\Models;
 
+use AllowDynamicProperties;
 use Laravel\Scout\Builder;
 
+#[AllowDynamicProperties]
 class ElasticQuery
 {
     public $sort;

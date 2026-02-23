@@ -138,7 +138,7 @@ class NestedQueryService
                                 'must' => [
                                     'range' => [
                                         $nestPath . "." . $data['field'] => [
-                                            ['gte' => $data['value1'], 'lte' => $data['value2']]
+                                            'gte' => $data['value'][0], 'lte' => $data['value'][1]
                                         ]
                                     ]
                                 ]

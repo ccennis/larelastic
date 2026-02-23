@@ -2,6 +2,7 @@
 
 namespace Larelastic\Elastic\Indexers;
 
+use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Larelastic\Elastic\Facades\Elastic;
 use Larelastic\Elastic\Traits\Migratable;
 use Larelastic\Elastic\Payloads\DocumentPayload;
@@ -36,7 +37,7 @@ class SingleIndexer implements IndexerInterface
                     $payload->useAlias('write');
                 }
 
-                if ($documentRefresh = config('scout_elastic.document_refresh')) {
+                if ($documentRefresh = config('elastic.document_refresh')) {
                     $payload->set('refresh', $documentRefresh);
                 }
 
@@ -55,10 +56,15 @@ class SingleIndexer implements IndexerInterface
     {
         $models->each(function ($model) {
             $payload = (new DocumentPayload($model))
-                ->set('client.ignore', 404)
                 ->get();
 
-            Elastic::delete($payload);
+            try {
+                Elastic::delete($payload);
+            } catch (ClientResponseException $e) {
+                if ($e->getResponse()->getStatusCode() !== 404) {
+                    throw $e;
+                }
+            }
         });
     }
 }

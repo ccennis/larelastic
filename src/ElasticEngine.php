@@ -6,8 +6,6 @@ namespace Larelastic\Elastic;
 
 use Larelastic\Elastic\Indexers\IndexerInterface;
 use Larelastic\Elastic\Payloads\IndexPayload;
-use Larelastic\Elastic\Services\NestedQueryService;
-use Larelastic\Elastic\Services\QueryService;
 use Larelastic\Elastic\Facades\Elastic;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
@@ -128,23 +126,7 @@ class ElasticEngine extends Engine
             ->setIfNotEmpty('body', $query)
             ->get();
 
-        return Elastic::search($payload);
-    }
-
-    public function where($col, $operator, $value, $boolean = 'and', $nested = false)
-    {
-        $service = $nested ? NestedQueryService::class : QueryService::class;
-        $this->boolType = $operator == '<>' ? 'must_not' : 'must';
-
-        if ($boolean == 'or') {
-
-            $this->orWheres[] = [$col, $operator, $value];
-
-        } else {
-            $this->bool[$this->boolType][] = $service::buildQuery($this->wrapCriteria([$col, $operator, $value]));
-        }
-
-        return $this;
+        return Elastic::search($payload)->asArray();
     }
 
     /**

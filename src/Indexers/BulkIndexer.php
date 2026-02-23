@@ -2,6 +2,7 @@
 
 namespace Larelastic\Elastic\Indexers;
 
+use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Larelastic\Elastic\Traits\Migratable;
 use Larelastic\Elastic\Payloads\RawPayload;
 use Larelastic\Elastic\Payloads\TypePayload;
@@ -24,7 +25,7 @@ class BulkIndexer implements IndexerInterface
             $bulkPayload->useAlias('write');
         }
 
-        if ($documentRefresh = config('scout_elastic.document_refresh')) {
+        if ($documentRefresh = config('elastic.document_refresh')) {
             $bulkPayload->set('refresh', $documentRefresh);
         }
 
@@ -69,8 +70,12 @@ class BulkIndexer implements IndexerInterface
             $bulkPayload->add('body', $actionPayload->get());
         });
 
-        $bulkPayload->set('client.ignore', 404);
-
-        Elastic::bulk($bulkPayload->get());
+        try {
+            Elastic::bulk($bulkPayload->get());
+        } catch (ClientResponseException $e) {
+            if ($e->getResponse()->getStatusCode() !== 404) {
+                throw $e;
+            }
+        }
     }
 }
