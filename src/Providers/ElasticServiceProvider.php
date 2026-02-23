@@ -80,16 +80,13 @@ class ElasticServiceProvider extends ServiceProvider
 
             $builder = ClientBuilder::create()
                 ->setHttpClientOptions([
-                    'timeout'         => config('elastic.client.timeout_in_seconds'),
-                    'connect_timeout' => config('elastic.client.connect_timeout_in_seconds'),
+                    'timeout' => config('elastic.client.timeout_in_seconds'),
                 ]);
 
             if (!empty($apiKey)) {
                 // API key auth (Elastic Cloud)
-                $decoded = base64_decode($apiKey);
-                [$id, $key] = explode(':', $decoded, 2);
                 $builder->setHosts(config('elastic.client.hosts'))
-                    ->setApiKey($id, $key);
+                    ->setApiKey($apiKey);
             } elseif (!empty($isPwProtected)) {
                 // Username/password auth (Bonsai, etc.)
                 $builder->setHosts([config('elastic.client.auth_string')]);

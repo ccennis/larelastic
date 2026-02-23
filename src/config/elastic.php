@@ -13,7 +13,6 @@ return [
         'password' => env('ELASTICSEARCH_PASSWORD'),
         'api_key' => env('ELASTICSEARCH_API_KEY'),
         'timeout_in_seconds' => env('ELASTICSEARCH_TIMEOUT', 5),
-        'connect_timeout_in_seconds' => env('ELASTICSEARCH_CONNECT_TIMEOUT', 2),
     ],
     'update_mapping' => env('ELASTIC_UPDATE_MAPPING', true),
     'indexer' => env('ELASTIC_INDEXER', 'single'),
