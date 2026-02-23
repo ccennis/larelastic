@@ -61,7 +61,8 @@ class ElasticIndexDropCommand extends Command
                 ->get();
 
             $aliases = Elastic::indices()
-                ->getAlias($payload);
+                ->getAlias($payload)
+                ->asArray();
 
             return key($aliases);
         } else {

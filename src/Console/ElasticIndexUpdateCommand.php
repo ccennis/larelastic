@@ -40,7 +40,7 @@ class ElasticIndexUpdateCommand extends Command
 
         $indices = Elastic::indices();
 
-        if (!$indices->exists($indexPayload)) {
+        if (!$indices->exists($indexPayload)->asBool()) {
             throw new LogicException(sprintf(
                 'Index %s doesn\'t exist',
                 $configurator->getName()
@@ -90,7 +90,7 @@ class ElasticIndexUpdateCommand extends Command
             ->set('name', $configurator->getWriteAlias())
             ->get();
 
-        if ($indices->existsAlias($existsPayload)) {
+        if ($indices->existsAlias($existsPayload)->asBool()) {
             return;
         }
 

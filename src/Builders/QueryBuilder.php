@@ -602,16 +602,22 @@ class QueryBuilder extends Builder
 
         $perPage = $perPage ?: $this->model->getPerPage();
 
+        $mapped = $engine->map(
+            $this, $rawResults = $engine->paginate($this, $perPage, $page), $this->model
+        );
+
         $results = $this->model->newCollection(
-            $engine->map(
-                $this, $rawResults = $engine->paginate($this, $perPage, $page), $this->model
-            )
+            $mapped['response']->all()
         );
 
         $paginator = (new LengthAwarePaginator($results, min($engine->getTotalCount($rawResults), ElasticSettings::MAX_RESULT_SET), $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),
             'pageName' => $pageName,
         ]));
+
+        if (isset($mapped['aggs'])) {
+            $paginator->aggs = $mapped['aggs'];
+        }
 
         //update all links to use query params and append page=#
         if (!request()->has('page')) {

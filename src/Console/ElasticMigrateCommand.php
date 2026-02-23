@@ -64,7 +64,7 @@ class ElasticMigrateCommand extends Command
             ->set('index', $targetIndex)
             ->get();
 
-        return Elastic::indices()->exists($payload);
+        return Elastic::indices()->exists($payload)->asBool();
     }
 
     /**
@@ -165,9 +165,7 @@ class ElasticMigrateCommand extends Command
 
         $payload = (new RawPayload())
             ->set('index', $targetIndex)
-            ->set('type', $targetType)
-            ->set('include_type_name', 'true')
-            ->set('body.' . $targetType, $mappings)
+            ->set('body', $mappings)
             ->get();
 
         Elastic::indices()->putMapping($payload);
@@ -190,7 +188,7 @@ class ElasticMigrateCommand extends Command
             ->set('name', $name)
             ->get();
 
-        return Elastic::indices()->existsAlias($payload);
+        return Elastic::indices()->existsAlias($payload)->asBool();
     }
 
     /**
@@ -205,7 +203,7 @@ class ElasticMigrateCommand extends Command
             ->set('name', $name)
             ->get();
 
-        return Elastic::indices()->getAlias($getPayload);
+        return Elastic::indices()->getAlias($getPayload)->asArray();
     }
 
     /**

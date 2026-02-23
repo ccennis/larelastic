@@ -10,7 +10,10 @@ return [
         'base_url' => env('ELASTICSEARCH_HOST') . ":" . env('ELASTICSEARCH_PORT', 9200),
         'index' => env('ELASTICSEARCH_INDEX'),
         'username' => env('ELASTICSEARCH_USERNAME'),
-        'password' => env('ELASTICSEARCH_PASSWORD')
+        'password' => env('ELASTICSEARCH_PASSWORD'),
+        'api_key' => env('ELASTICSEARCH_API_KEY'),
+        'timeout_in_seconds' => env('ELASTICSEARCH_TIMEOUT', 5),
+        'connect_timeout_in_seconds' => env('ELASTICSEARCH_CONNECT_TIMEOUT', 2),
     ],
     'update_mapping' => env('ELASTIC_UPDATE_MAPPING', true),
     'indexer' => env('ELASTIC_INDEXER', 'single'),
