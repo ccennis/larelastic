@@ -13,7 +13,7 @@ use Illuminate\Support\ServiceProvider;
 use Larelastic\Elastic\Console\ElasticIndexCreateCommand;
 use InvalidArgumentException;
 use Laravel\Scout\EngineManager;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 use function class_exists;
 use function sprintf;
 use function ucfirst;
