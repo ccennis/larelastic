@@ -85,8 +85,9 @@ class ElasticServiceProvider extends ServiceProvider
 
             if (!empty($apiKey)) {
                 // API key auth (Elastic Cloud)
+                $safeKey = str_replace(['-', '_'], ['+', '/'], $apiKey);
                 $builder->setHosts(config('elastic.client.hosts'))
-                    ->setApiKey($apiKey);
+                    ->setApiKey($safeKey);
             } elseif (!empty($isPwProtected)) {
                 // Username/password auth (Bonsai, etc.)
                 $builder->setHosts([config('elastic.client.auth_string')]);

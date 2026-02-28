@@ -1,7 +1,7 @@
 {
     "name": "ink-empire/elastic",
     "description": "Generic Wrapper for elasticsearch and indexing",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "type": "library",
     "minimum-stability": "dev",
     "require": {
