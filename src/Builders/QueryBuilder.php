@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Larelastic\Elastic\Builders;
 
 use Larelastic\Elastic\Constants\ElasticSettings;
@@ -13,6 +12,7 @@ use Larelastic\Elastic\Services\QueryService;
 use Closure;
 use Config;
 use Log;
+
 use function array_pop;
 use function count;
 use function explode;
@@ -25,7 +25,6 @@ use function request;
 
 class QueryBuilder extends Builder
 {
-
     /**
      * The _source object.
      *
@@ -141,6 +140,11 @@ class QueryBuilder extends Builder
      */
     public $select = [];
 
+    public function engine()
+    {
+        return $this->model->searchableUsing();
+    }
+
     public function _source($data)
     {
         $this->_source = $data;
@@ -159,7 +163,7 @@ class QueryBuilder extends Builder
 
             $this->orWheres[] = $service::buildQuery($this->wrapCriteria(func_get_args()));
 
-        } else if ($boolean == 'and') {
+        } elseif ($boolean == 'and') {
             $this->andWheres[] = $service::buildQuery($this->wrapCriteria(func_get_args()));
 
         } else {
@@ -242,7 +246,7 @@ class QueryBuilder extends Builder
                 $parentShould = QueryService::buildShould([$andShouldBlock, $orShouldBlock], $minMatch);
                 $this->bool[$this->boolType][] = $parentShould;
             } else {
-                if($andShouldBlock || $orShouldBlock) {
+                if ($andShouldBlock || $orShouldBlock) {
                     $this->bool[$this->boolType][] = $andShouldBlock ?: $orShouldBlock;
                 }
             }
@@ -321,7 +325,7 @@ class QueryBuilder extends Builder
         return $shouldClauses;
     }
 
-    //match fronts of words, max ngrams defined in mapping 
+    //match fronts of words, max ngrams defined in mapping
     public function wherePrefix($field, $phrases, $type = 'all_of', $ordered = false, $filter = null)
     {
         $phrases = is_array($phrases) ? $phrases : [$phrases];
@@ -472,7 +476,7 @@ class QueryBuilder extends Builder
         return $this;
     }
 
-    public function whereMulti(Array $col, $operator, $value, $type = 'phrase_prefix')
+    public function whereMulti(array $col, $operator, $value, $type = 'phrase_prefix')
     {
         $this->bool['must'][]['multi_match'] = [
             'type' => $type,
@@ -635,7 +639,9 @@ class QueryBuilder extends Builder
         $perPage = $perPage ?: $this->model->getPerPage();
 
         $mapped = $engine->map(
-            $this, $rawResults = $engine->paginate($this, $perPage, $page), $this->model
+            $this,
+            $rawResults = $engine->paginate($this, $perPage, $page),
+            $this->model
         );
 
         $results = $this->model->newCollection(
@@ -657,7 +663,7 @@ class QueryBuilder extends Builder
         }
         $paginator->appends(request()->except('page'))->links();
 
-        if(isset($rawResults['suggest'])){ //the user got no results, show them what we searched instead
+        if (isset($rawResults['suggest'])) { //the user got no results, show them what we searched instead
             $paginator->suggest = $rawResults['suggest'];
         }
 
