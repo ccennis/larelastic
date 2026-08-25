@@ -170,6 +170,24 @@ class QueryService
      * @param $data
      * @return array
      */
+    public static function buildGeoQuery($data)
+    {
+        $geoQuery = [
+            'geo_distance' => [
+                'distance' => $data['distance'],
+                $data['col'] => [
+                    "lat" => $data['lat'],
+                    "lon" => $data['lon']
+                ],
+            ]];
+
+        return $geoQuery;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
     public static function buildSort($data)
     {
         $reservedSorts = ["_score", "_doc"];
